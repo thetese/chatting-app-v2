@@ -1,0 +1,112 @@
+/* App Layout - Market Ready */
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  background: var(--bg-light);
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px;
+}
+
+.page-content {
+  background: var(--bg-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.page-content h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+/* Home Page */
+
+.home-page {
+  padding-top: 0;
+}
+
+/* Explore Page */
+
+.explore-page {
+  max-width: 800px;
+}
+
+/* Profile Page */
+
+.profile-page {
+  max-width: 900px;
+}
+
+/* Messages Page */
+
+.messages-page {
+  padding: 0;
+  height: 100%;
+}
+
+/* Activity Page */
+
+.activity-page {
+  max-width: 600px;
+}
+
+/* Create Page */
+
+.create-page {
+  max-width: 600px;
+}
+
+.veeme-page {
+  max-width: none;
+  padding: 0;
+  height: 100%;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .page-container {
+    padding: 10px;
+  }
+
+  .page-content {
+    border-radius: 8px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    overflow-x: hidden;
+  }
+
+  .page-container {
+    padding: 0;
+  }
+
+  .page-content {
+    border-radius: 0;
+    padding: 10px;
+  }
+}

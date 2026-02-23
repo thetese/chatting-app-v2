@@ -1,0 +1,208 @@
+/* Veeme - Short Videos Page */
+
+.veeme-container {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--text-primary);
+  z-index: 5;
+}
+
+.veeme-header {
+  padding: 20px 24px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, transparent 100%);
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.veeme-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.veeme-tagline {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.veeme-feed {
+  flex: 1;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.veeme-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.veeme-feed::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary);
+  border-radius: 3px;
+}
+
+.veeme-card {
+  height: 100vh;
+  min-height: 500px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  background: #000;
+}
+
+.veeme-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.veeme-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.veeme-side-actions {
+  position: absolute;
+  right: 16px;
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.veeme-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid white;
+}
+
+.veeme-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.veeme-action-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.veeme-action-btn:hover {
+  transform: scale(1.2);
+}
+
+.veeme-action-count {
+  font-size: 12px;
+  color: white;
+  font-weight: 600;
+}
+
+.veeme-info {
+  position: absolute;
+  left: 16px;
+  right: 80px;
+  bottom: 24px;
+}
+
+.veeme-username {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.veeme-caption {
+  font-size: 15px;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.4;
+}
+
+.veeme-loading {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 14px;
+  z-index: 20;
+}
+
+.veeme-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: veemeSpin 0.8s linear infinite;
+}
+
+@keyframes veemeSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .veeme-container {
+    margin-left: 80px;
+  }
+
+  .veeme-header {
+    left: 80px;
+  }
+
+  .veeme-header h1 {
+    font-size: 22px;
+  }
+
+  .veeme-side-actions {
+    right: 12px;
+    bottom: 100px;
+  }
+
+  .veeme-action-btn {
+    font-size: 24px;
+  }
+
+  .veeme-info {
+    right: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .veeme-container {
+    margin-left: 0;
+  }
+
+  .veeme-header {
+    left: 0;
+  }
+}
