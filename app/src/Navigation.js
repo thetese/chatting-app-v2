@@ -9,7 +9,8 @@ import {
   ActivityIcon,
   WebIcon,
   VeemeIcon,
-  ProfileIcon
+  ProfileIcon,
+  AdminIcon
 } from './components/NavIcons';
 
 /**
@@ -33,6 +34,7 @@ const Navigation = ({ currentUser, onLogout }) => {
     { path: '/activity', label: 'Activity', Icon: ActivityIcon },
     { path: '/veeme', label: 'Veeme', Icon: VeemeIcon },
     { path: '/webview', label: 'Web', Icon: WebIcon },
+    { path: '/admin', label: 'Admin', Icon: AdminIcon },
     { path: `/profile/${currentUser?.id}`, label: 'Profile', Icon: ProfileIcon }
   ];
 

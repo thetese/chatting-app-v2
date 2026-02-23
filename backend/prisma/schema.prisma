@@ -1,0 +1,328 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  SECURITY_ADMIN
+  COMPLIANCE_ADMIN
+  MEMBER
+  GUEST
+}
+
+enum WorkspaceRole {
+  ADMIN
+  MEMBER
+}
+
+enum ConversationType {
+  CHANNEL_PUBLIC
+  CHANNEL_PRIVATE
+  DM
+  GROUP_DM
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+}
+
+model Organization {
+  id                  String               @id @default(cuid())
+  name                String
+  domains             String[]
+  plan                String
+  settings            Json
+  retentionDays       Int                  @default(365)
+  complianceSettings  Json
+  allowedAuthMethods  String[]
+  users               User[]
+  workspaces          Workspace[]
+  memberships         OrgMembership[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  conversations       Conversation[]
+  messages            Message[]
+  files               FileObject[]
+  legalHolds          LegalHold[]
+  audits              AuditLog[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model Workspace {
+  id              String                @id @default(cuid())
+  orgId           String
+  name            String
+  slug            String
+  org             Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  memberships     WorkspaceMembership[]
+  conversations   Conversation[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@unique([orgId, slug])
+  @@index([orgId])
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  orgId               String
+  email               String
+  name                String
+  status              String                @default("active")
+  passwordHash        String?
+  mfaEnabled          Boolean               @default(false)
+  mfaSecretEncrypted  String?
+  backupCodesHash     String[]
+  authMethods         String[]
+  recoveryOptions     Json?
+  emailVerifiedAt     DateTime?
+  failedLoginAttempts Int      @default(0)
+  lockedUntil         DateTime?
+  profile             UserProfile?
+  devices             Device[]
+  org                 Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgMemberships      OrgMembership[]
+  workspaceMemberships WorkspaceMembership[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  messages            Message[]             @relation("SenderMessages")
+  createdConversations Conversation[]       @relation("ConversationCreator")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@unique([orgId, email])
+  @@index([orgId])
+}
+
+model UserProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  avatarUrl    String?
+  title        String?
+  department   String?
+  timezone     String?
+  customFields Json?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Device {
+  id           String   @id @default(cuid())
+  orgId        String
+  userId       String
+  deviceId     String
+  fingerprint  String
+  os           String
+  trustLevel   String
+  lastSeenAt   DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+  @@index([orgId, userId])
+}
+
+model OrgMembership {
+  id      String  @id @default(cuid())
+  orgId   String
+  userId  String
+  role    OrgRole
+  org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId, role])
+}
+
+model WorkspaceMembership {
+  id          String         @id @default(cuid())
+  orgId       String
+  workspaceId String
+  userId      String
+  role        WorkspaceRole
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([orgId, workspaceId])
+}
+
+model Session {
+  id                String        @id @default(cuid())
+  orgId             String
+  userId            String
+  refreshTokenHash  String
+  familyId          String
+  parentSessionId   String?
+  expiresAt         DateTime
+  status            SessionStatus @default(ACTIVE)
+  lastUsedAt        DateTime      @default(now())
+  userAgent         String?
+  ipAddress         String?
+  org               Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, userId, familyId])
+}
+
+
+
+model PasswordResetToken {
+  id          String   @id @default(cuid())
+  orgId       String
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, userId])
+}
+
+model EmailVerificationToken {
+  id          String   @id @default(cuid())
+  orgId       String
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, userId])
+}
+
+model Conversation {
+  id              String            @id @default(cuid())
+  orgId           String
+  workspaceId     String?
+  type            ConversationType
+  name            String?
+  topic           String?
+  description     String?
+  isArchived      Boolean           @default(false)
+  createdBy       String
+  org             Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  workspace       Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator         User              @relation("ConversationCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  members         ConversationMember[]
+  messages        Message[]
+  files           FileObject[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([orgId, workspaceId])
+}
+
+model ConversationMember {
+  id               String       @id @default(cuid())
+  orgId            String
+  conversationId   String
+  userId           String
+  lastReadMessageId String?
+  joinedAt         DateTime     @default(now())
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([orgId, userId])
+}
+
+model Message {
+  id               String      @id @default(cuid())
+  orgId            String
+  conversationId   String
+  senderId         String
+  body             String
+  markdownBody     String?
+  isDeleted        Boolean     @default(false)
+  editedAt         DateTime?
+  replyToMessageId String?
+  createdAt        DateTime    @default(now())
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender           User         @relation("SenderMessages", fields: [senderId], references: [id], onDelete: Restrict)
+  reactions        MessageReaction[]
+  edits            MessageEdit[]
+
+  @@index([orgId, conversationId, createdAt])
+}
+
+model MessageEdit {
+  id         String   @id @default(cuid())
+  orgId      String
+  messageId  String
+  previousBody String
+  editedBy   String
+  editedAt   DateTime @default(now())
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, messageId])
+}
+
+model MessageReaction {
+  id         String   @id @default(cuid())
+  orgId      String
+  messageId  String
+  userId     String
+  emoji      String
+  createdAt  DateTime @default(now())
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([orgId, userId])
+}
+
+model FileObject {
+  id             String   @id @default(cuid())
+  orgId          String
+  conversationId String
+  uploaderId     String
+  fileName       String
+  mimeType       String
+  sizeBytes      Int
+  status         String
+  storageKey     String
+  scanResult     String?
+  createdAt      DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, conversationId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  orgId      String
+  actorId    String?
+  action     String
+  targetType String
+  targetId   String?
+  metadata   Json
+  ipAddress  String?
+  requestId  String?
+  createdAt  DateTime @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+}
+
+model LegalHold {
+  id           String   @id @default(cuid())
+  orgId        String
+  scopeType    String
+  scopeId      String
+  reason       String
+  ownerId      String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, scopeType, scopeId])
+}
