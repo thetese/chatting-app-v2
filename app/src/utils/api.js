@@ -193,6 +193,82 @@ class ApiService {
   static viewStory(storyId) {
     return this.request(`/stories/${storyId}/view`, { method: 'POST' });
   }
+
+  // Admin endpoints
+  static getAdminUsers() {
+    return this.request('/admin/users');
+  }
+
+  static updateAdminUser(userId, payload) {
+    return this.request(`/admin/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static updateAdminUserRoles(userId, payload) {
+    return this.request(`/admin/users/${userId}/roles`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static getAdminRoles() {
+    return this.request('/admin/roles');
+  }
+
+  static getSecurityPolicies() {
+    return this.request('/admin/security-policies');
+  }
+
+  static updateSecurityPolicies(payload) {
+    return this.request('/admin/security-policies', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static getRetentionPolicy() {
+    return this.request('/admin/retention-policy');
+  }
+
+  static updateRetentionPolicy(payload) {
+    return this.request('/admin/retention-policy', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static getAuditLogs(options = {}) {
+    const params = new URLSearchParams(options);
+    return this.request(`/admin/audit-logs?${params}`);
+  }
+
+  static runRetentionJob() {
+    return this.request('/admin/retention/jobs/run', { method: 'POST' });
+  }
+
+  static getLegalHolds() {
+    return this.request('/admin/legal-holds');
+  }
+
+  static createLegalHold(payload) {
+    return this.request('/admin/legal-holds', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static releaseLegalHold(holdId) {
+    return this.request(`/admin/legal-holds/${holdId}/release`, { method: 'PATCH' });
+  }
+
+  static createEdiscoveryExport(payload) {
+    return this.request('/admin/ediscovery/exports', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
 }
 
 export default ApiService;

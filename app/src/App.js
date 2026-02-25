@@ -13,6 +13,7 @@ import MessagesPage from './pages/messages';
 import ActivityPage from './pages/activity';
 import WebViewPage from './pages/webview';
 import VeemePage from './pages/veeme';
+import AdminPage from './pages/admin';
 
 /**
  * Protected Route Component
@@ -99,6 +100,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <VeemePage currentUser={currentUser} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminPage />
                 </ProtectedRoute>
               }
             />
